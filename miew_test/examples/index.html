@@ -1,0 +1,38 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Miew via Global</title>
+        <meta name="twitter:card" content="player" />
+        <meta name="twitter:site" content="@souyakuchan" />
+        <meta name="twitter:creator" content="@souyakuchan" />
+        <meta name="twitter:title" content="Protein Viewer on the card" />
+        <meta name="twitter:description" content="Protein Viewer on the card" />
+        <meta name="twitter:image" content="https://souyakuchan.github.io/miew_test/examples/gfp.jpg" />
+        <meta name="twitter:player" content="https://souyakuchan.github.io/miew_test/examples/"/>
+        <meta name="twitter:player:width" content="512" />
+        <meta name="twitter:player:height" content="512" />
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <link rel="stylesheet" href="../dist/Miew.min.css">
+  <script src="https://unpkg.com/babel-polyfill@6.26.0/dist/polyfill.min.js"></script>
+  <script src="../dist/Miew.min.js"></script>
+</head>
+<body>
+  <div class="miew-container" style="width:512px; height:512px"></div>
+
+  <script>
+    (function() {
+      var viewer = new Miew({
+        container: document.getElementsByClassName('miew-container')[0],
+        load: '1EMB',
+      });
+
+      if (viewer.init()) {
+        viewer.run();
+      }
+    })();
+  </script>
+</body>
+</html>
