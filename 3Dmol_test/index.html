@@ -28,7 +28,7 @@
 
 <body>
 
-/* <div id="container-01" class="mol-container"></div> */
+<!-- <div id="container-01" class="mol-container"></div> -->
 
 <div id="container-01" style="height: 438px; width: 438px; position: relative;" class='mol-container' data-pdb='1EMB' data-backgroundcolor='0xffffff' 
       data-select1='chain:A' data-style1='cartoon:color=spectrum' data-surface1='opacity:.7;color:white' data-select2='chain:B' data-style2='stick'></div>
@@ -52,21 +52,8 @@ $(function() {
   viewer.zoom(0.8, 2000);*/
 
   let viewer = $3Dmol.createViewer( element, config );
-/*  let pdbUri = 'https://files.rcsb.org/download/1emb.pdb';
-  jQuery.ajax( pdbUri, { 
-    success: function(data) {
-      let v = viewer;
-      v.addModel( data, "pdb" );                       /* load data */
-      v.setStyle({}, {cartoon: {color: 'spectrum'}});  /* style all atoms */
-      v.zoomTo();                                      /* set camera */
-      v.render();                                      /* render scene */
-      v.zoom(1.2, 1000);                               /* slight zoom */
-    },
-    error: function(hdr, status, err) {
-      console.error( "Failed to load PDB " + pdbUri + ": " + err );
-    },
-  });
-*/
+  let pdbUri = 'https://files.rcsb.org/download/1emb.pdb';
+
 
 });
 </script>
