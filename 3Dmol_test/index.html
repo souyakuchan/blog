@@ -57,7 +57,9 @@ $(function() {
     success: function(data) {
       let v = viewer;
       v.addModel( data, "pdb" );                       /* load data */
-      v.setStyle({chain:'A'}, {cartoon: {color: 'spectrum'}});  /* style all atoms */
+	    /* Style 参考: http://3dmol.csb.pitt.edu/doc/$3Dmol.GLViewer.html */
+      v.setStyle({}, {line: {color: 'spectrum'}});  /* style all atoms */
+      v.setStyle({chain:'A'}, {'cartoon': {style:'trace',color:'grey',opacity:0.75}});  /* style all atoms */
       v.zoomTo();                                      /* set camera */
       v.render();                                      /* render scene */
       v.zoom(1.2, 1000);                               /* slight zoom */
