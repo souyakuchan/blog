@@ -57,7 +57,7 @@ $(function() {
     success: function(data) {
       let v = viewer;
       v.addModel( data, "pdb" );                       /* load data */
-      v.setStyle({chain:A}, {cartoon: {color: 'spectrum'}});  /* style all atoms */
+      v.setStyle({chain:'A'}, {cartoon: {color: 'spectrum'}});  /* style all atoms */
       v.zoomTo();                                      /* set camera */
       v.render();                                      /* render scene */
       v.zoom(1.2, 1000);                               /* slight zoom */
