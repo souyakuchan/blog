@@ -27,11 +27,16 @@
 </head>
 
 <body>
-<div id="container-01" class="mol-container"></div>
+
+/* <div id="container-01" class="mol-container"></div> */
+
+<div id="container-01" style="height: 438px; width: 438px; position: relative;" class='mol-container' data-pdb='1EMB' data-backgroundcolor='0xffffff' 
+      data-select1='chain:A' data-style1='cartoon:color=spectrum' data-surface1='opacity:.7;color:white' data-select2='chain:B' data-style2='stick'></div>
+	
 <style>
 .mol-container {
-  width: 512px;
-  height: 512px;
+  width: 438px;
+  height: 438px;
   position: relative;
 }
 </style>
@@ -47,7 +52,7 @@ $(function() {
   viewer.zoom(0.8, 2000);*/
 
   let viewer = $3Dmol.createViewer( element, config );
-  let pdbUri = 'https://files.rcsb.org/download/1emb.pdb';
+/*  let pdbUri = 'https://files.rcsb.org/download/1emb.pdb';
   jQuery.ajax( pdbUri, { 
     success: function(data) {
       let v = viewer;
@@ -61,7 +66,8 @@ $(function() {
       console.error( "Failed to load PDB " + pdbUri + ": " + err );
     },
   });
-	
+*/
+
 });
 </script>
   
