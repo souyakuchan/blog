@@ -18,17 +18,24 @@
 </head>
 
 <body>
-         <div id="viewer_3Dmoljs" style="height: 400px; width: 400px; position: relative;" class='viewer_3Dmoljs' data-pdb='2POR' data-backgroundcolor='0xffffff' data-style='stick'></div>
-
-	<script>
-jQuery(function() {
-var viewer = $3Dmol.createViewer(
-     'viewer_3Dmoljs', //id of div to create canvas in
-     {
-       defaultcolors: $3Dmol.elementColors.rasmol,
-       backgroundColor: 'black'
-     }
-   );
+<div id="container-01" class="mol-container"></div>
+<style>
+.mol-container {
+  width: 60%;
+  height: 400px;
+  position: relative;
+}
+</style>
+	
+<script>
+$(function() {
+  let element = $('#container-01');
+  let config = { backgroundColor: 'orange' };
+  let viewer = $3Dmol.createViewer( element, config );
+  viewer.addSphere({ center: {x:0, y:0, z:0}, radius: 10.0, color: 'green' });
+  viewer.zoomTo();
+  viewer.render();
+  viewer.zoom(0.8, 2000);
 });
 </script>
   
