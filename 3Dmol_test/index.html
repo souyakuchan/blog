@@ -18,10 +18,10 @@
 </head>
 
 <body>
-         <div style="height: 400px; width: 400px; position: relative;" class='viewer_3Dmoljs' data-pdb='2POR' data-backgroundcolor='0xffffff' data-style='stick'></div>
+         <div id="viewer_3Dmoljs" style="height: 400px; width: 400px; position: relative;" class='viewer_3Dmoljs' data-pdb='2POR' data-backgroundcolor='0xffffff' data-style='stick'></div>
 
 	<script>
-$(function() {
+jQuery(function() {
 var viewer = $3Dmol.createViewer(
      'viewer_3Dmoljs', //id of div to create canvas in
      {
