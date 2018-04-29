@@ -1,0 +1,1422 @@
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <META HTTP-EQUIV="imagetoolbar" CONTENT="no">
+    <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=ISO-8859-1">
+
+    <meta name="twitter:card" content="player" />
+    <meta name="twitter:site" content="@souyakuchan" />
+    <meta name="twitter:creator" content="@souyakuchan" />
+    <meta name="twitter:title" content="Chemical Editor on the card" />
+    <meta name="twitter:description" content="Chemical Editor on the card" />
+    <meta name="twitter:image" content="https://souyakuchan.github.io/PubChemSketcher_test/bloqbuster.png" />
+    <meta name="twitter:player" content="https://souyakuchan.github.io/PubChemSketcher_test/" />
+    <meta name="twitter:player:width" content="512" />
+    <meta name="twitter:player:height" content="512" />
+
+    <title>PubChem Sketcher V2.4</title>
+
+    <style type="text/css">
+        BODY {
+            color: black;
+            font-family: Arial;
+            background: #DADADA
+        }
+
+        TABLE {
+            font-size: 10pt;
+        }
+
+        TD {
+            text-align: center;
+            vertical-align: middle;
+            color: black;
+            background: #E0F0FF;
+        }
+
+        .lefttd {
+            text-align: left;
+            background: #F0F0F0;
+        }
+
+        .blanktd {
+            text-align: center;
+            background: #F0F0F0;
+        }
+    </style>
+
+    <script language=JavaScript type="text/javascript">
+
+        var sessionid = 0, eventcount = 0;
+        var downx = -1, downy = -1, lastx = -1, lasty = -1, lasttime = -1, curx = -1, cury = -1;
+        var catchupx = -1, catchupy = -1;
+        var catchupid = 0, catchupctrl = false, catchupshift = false, catchupbutton = 1;
+        var vid = '';
+        var vhadd = 0;
+        var mode = null;
+        var timeoutid = null;
+        var querywin = null, templatewin = null;
+        var key_cur = '', key_bck = '';
+        var template = null;
+        var txtcolor_neutral = "black";
+        var txtcolor_selected = "black";
+        var selectid = null;
+        var complex_lookup_delay = 1500;
+        var simple_lookup_delay = 250;
+        var button_flash_delay = 250;
+        var draw_catchup_delay = 300;
+        var iconheight = 28;
+        /* sprite image names and their positive y offset */
+        var sprites = new Object();
+        sprites['new'] = 0;
+        sprites['undo'] = 28;
+        sprites['clean'] = 2 * 28;
+        sprites['export'] = 3 * 28;
+        sprites['done'] = 4 * 28;
+        sprites['import'] = 5 * 28;
+        sprites['hydrogen'] = 6 * 28;
+        sprites['simplify'] = 7 * 28;
+        sprites['single'] = 8 * 28;
+        sprites['double'] = 9 * 28;
+        sprites['triple'] = 10 * 28;
+        sprites['up'] = 11 * 28;
+        sprites['down'] = 12 * 28;
+        sprites['any'] = 13 * 28;
+        sprites['either'] = 14 * 28;
+        sprites['wiggly'] = 15 * 28;
+        sprites['move'] = 16 * 28;
+        sprites['rotate'] = 17 * 28;
+        sprites['mirrorx'] = 18 * 28;
+        sprites['mirrory'] = 19 * 28;
+        sprites['template'] = 20 * 28;
+        sprites['r3'] = 21 * 28;
+        sprites['r4'] = 22 * 28;
+        sprites['r5'] = 23 * 28;
+        sprites['r6'] = 24 * 28;
+        sprites['phenyl'] = 25 * 28;
+        sprites['r7'] = 26 * 28;
+        sprites['r8'] = 27 * 28;
+        sprites['r9'] = 28 * 28;
+        sprites['ethyl'] = 29 * 28;
+        sprites['propyl'] = 30 * 28;
+        sprites['ipropyl'] = 31 * 28;
+        sprites['butyl'] = 32 * 28;
+        sprites['ibutyl'] = 33 * 28;
+        sprites['sbutyl'] = 34 * 28;
+        sprites['tbutyl'] = 35 * 28;
+
+        // for cross-window scripting, we need the full host domain!
+        var exporturl = "https://" + "pubchem.ncbi.nlm.nih.gov" + "/edit2/editsrv.fcgi";
+        var baseurl = exporturl + "?drawevent=";
+
+        function checkDomain() {
+            if (document.domain != 'pubchem.ncbi.nlm.nih.gov') {
+                if (!location.pathname) {
+                    location.replace("https://" + "pubchem.ncbi.nlm.nih.gov/" + location.search);
+                } else {
+                    location.replace("https://" + "pubchem.ncbi.nlm.nih.gov" + location.pathname + location.search);
+                }
+            }
+            try { document.domain = "ncbi.nlm.nih.gov"; } catch (e) { ; }
+        }
+
+        function isSafari() {
+            detect = navigator.userAgent.toLowerCase();
+            return detect.indexOf('safari') + 1;
+        }
+
+        function isOldIE() {
+            detect = navigator.appVersion.toLowerCase();
+            return (detect.indexOf('msie 4') >= 0 || detect.indexOf('msie 5') >= 0) ? 1 : 0;
+        }
+
+        function setMode(newmode, imgname) {
+            oldimgname = mode;
+            if (mode == 'Sc' || mode == 'Ti' || mode == 'V' || mode == 'Cr' || mode == 'Mn' ||
+                mode == 'Fe' || mode == 'Co' || mode == 'Ni' || mode == 'Cu' || mode == 'Zn') {
+                oldimgname = 'd1';
+            } else if (mode == 'Y' || mode == 'Zr' || mode == 'Nb' || mode == 'Mo' || mode == 'Tc' ||
+                mode == 'Ru' || mode == 'Rh' || mode == 'Pd' || mode == 'Ag' || mode == 'Cd') {
+                oldimgname = 'd2';
+            } else if (mode == 'Lu' || mode == 'Hf' || mode == 'Ta' || mode == 'W' || mode == 'Re' ||
+                mode == 'Os' || mode == 'Ir' || mode == 'Pt' || mode == 'Au' || mode == 'Hg') {
+                oldimgname = 'd3';
+            } else if (!document.images[oldimgname]) {
+                oldimgname = 'misc';
+            }
+            if (selectid) {
+                if (sprites[mode]) {
+                    selectid.style.backgroundPosition = "0px -" + sprites[mode] + "px";
+                } else {
+                    selectid.style.backgroundColor = "#E0F0FF";
+                }
+            } else if (oldimgname) {
+                try {
+                    document.images[oldimgname].src = 'img/' + mode + '.gif';
+                } catch (err) {
+                    ;
+                }
+            }
+            mode = newmode;
+            if (arguments.length < 2) {
+                imgname = mode;
+                id = document.getElementById(imgname);
+                if (!id) {
+                    if (mode == 'Sc' || mode == 'Ti' || mode == 'V' || mode == 'Cr' || mode == 'Mn' ||
+                        mode == 'Fe' || mode == 'Co' || mode == 'Ni' || mode == 'Cu' || mode == 'Zn') {
+                        imgname = 'd1';
+                    } else if (mode == 'Y' || mode == 'Zr' || mode == 'Nb' || mode == 'Mo' || mode == 'Tc' ||
+                        mode == 'Ru' || mode == 'Rh' || mode == 'Pd' || mode == 'Ag' || mode == 'Cd') {
+                        imgname = 'd2';
+                    } else if (mode == 'Lu' || mode == 'Hf' || mode == 'Ta' || mode == 'W' || mode == 'Re' ||
+                        mode == 'Os' || mode == 'Ir' || mode == 'Pt' || mode == 'Au' || mode == 'Hg') {
+                        imgname = 'd3';
+                    } else if (!document.images[imgname]) {
+                        imgname = 'misc';
+                    }
+                }
+            }
+            id = document.getElementById(imgname);
+            if (id) {
+                if (sprites[newmode]) {
+                    id.style.backgroundPosition = -2 * 28 - 2 + "px -" + sprites[newmode] + "px";
+                } else {
+                    id.style.backgroundColor = "#FFD700";
+                    if (mode == "qm") {
+                        id.innerHTML = "?";
+                    } else if (mode == "sa") {
+                        id.innerHTML = "S/A";
+                    } else if (mode == "da") {
+                        id.innerHTML = "D/A";
+                    } else if (mode == "sd") {
+                        id.innerHTML = "S/D";
+                    } else if (mode == "co2h") {
+                        id.innerHTML = "CO<sub>2</sub>H";
+                    } else if (mode == "cho") {
+                        id.innerHTML = "CHO";
+                    } else if (mode == "no2") {
+                        id.innerHTML = "NO<sub>2</sub>";
+                    } else if (mode == "so3h") {
+                        id.innerHTML = "SO<sub>3</sub>H";
+                    } else if (mode == "plus") {
+                        id.innerHTML = "&#8853;";
+                    } else if (mode == "minus") {
+                        id.innerHTML = "&#8854;";
+                    } else if (mode == "radical") {
+                        id.innerHTML = "&#8857;";
+                    } else if (mode == "zero") {
+                        id.innerHTML = "&#6450;";
+                    } else {
+                        var txt = mode.substr(0, 1).toUpperCase() + mode.substr(1);
+                        id.innerHTML = txt.replace(/([0-9]+)/g, "<sub>$1</sub>");
+                    }
+                }
+                selectid = id;
+            } else {
+                document.images[imgname].src = 'img/' + mode + '_s.gif';
+                selectid = null;
+            }
+            if (newmode != 'qry') closeSubwindows();
+        }
+
+        function openTemplates() {
+            setMode('template');
+            templatewin = open("tpl.html", "templates", "height=425,width=800,scrollbars=no,status=yes,location=no,menubar=no,toolbar=no,resizable=yes", true);
+            if (templatewin) templatewin.focus();
+        }
+
+        function setTemplate(t) {
+            template = t;
+        }
+
+        function setKeys(k_cur, k_bck) {
+            key_cur = k_cur;
+            key_bck = k_bck;
+        }
+
+        // mode 0: off, mode 1: on, mode 2:flas
+        function flashSprite(cellid, mode) {
+            var id = document.getElementById(cellid);
+            if (mode == 0) {
+                id.style.backgroundPosition = "0px -" + sprites[cellid] + "px";
+            } else if (mode == 1) {
+                id.style.backgroundPosition = -2 * 28 - 2 + "px -" + sprites[cellid] + "px";
+            } else {
+                flashSprite(cellid, 1);
+                self.setTimeout('flashSprite("' + cellid + '",0);', button_flash_delay);
+            }
+        }
+
+        function setMiscElement() {
+            var s = document.forms['editor'].elements['miscelements'];
+            var e = s.options[s.selectedIndex].value;
+            setMode(e, 'misc');
+        }
+
+        function setD1Element() {
+            var s = document.forms['editor'].elements['d1elements'];
+            var e = s.options[s.selectedIndex].value;
+            setMode(e, 'd1');
+        }
+
+        function setD2Element() {
+            var s = document.forms['editor'].elements['d2elements'];
+            var e = s.options[s.selectedIndex].value;
+            setMode(e, 'd2');
+        }
+
+        function setD3Element() {
+            var s = document.forms['editor'].elements['d3elements'];
+            var e = s.options[s.selectedIndex].value;
+            setMode(e, 'd3');
+        }
+
+        function pasteStructure(e) {
+            var t;
+            if (!e) e = window.event;
+            e.returnValue = false;
+            var x = eventX(e);
+            var y = eventY(e);
+            if (window.clipboardData && window.clipboardData.getData) {
+                // IE
+                t = clipboardData.getData('Text');
+            } else if (e.clipboardData && e.clipboardData.getData) {
+                // Safari
+                t = clipboardData.getData('text/plain');
+            } else {
+                // redirect to paste into topline
+                alert('Could not get clipboard data.\nThis is an intentional security feature for non-IE/Safari browsers. It can be enabled for many browsers in their configuration panels, but only on a global basis, which is risky.');
+                return false;
+            }
+            eventcount++;
+            document.images['molcanvas'].src = baseurl + "paste&sessionid=" + sessionid + "&key_cur=" + key_cur + "&key_bck=" + key_bck + "&cnt=" + eventcount + "&x=" + x + "&y=" + y + "&smiles=" + encodeURIComponent(t) + "&speed=" + connectionSpeed() + "&nopng=" + isOldIE() + "&vid=" + vid + "&vhadd=" + vhadd;
+            // not immediate - needs time to process!
+            updateTopinfo(0);
+            return false;
+        }
+
+        function exportStructure() {
+            flashSprite('export', 2);
+            eventcount++;
+            var f = document.forms['editor'].elements['format'];
+            var fmt = f.options[f.selectedIndex].value;
+            fillHidden('export', 0, 0);
+            document.forms['editor'].submit();
+        }
+
+        function updateImage() {
+            document.images['molcanvas'].src = baseurl + "refresh&sessionid=" + sessionid + "&key_cur=" + key_cur + "&key_bck=" + key_bck + "&cnt=" + eventcount + "&speed=" + connectionSpeed() + "&nopng=" + isOldIE() + "&vid=" + vid + "&vhadd=" + vhadd;
+        }
+
+        function importStructure() {
+            flashSprite('import', 2);
+            eventcount++;
+            fillHidden('import', 0, 0);
+            document.forms['editor'].submit();
+            self.setTimeout('updateImage();', 200);
+            updateTopinfo(0);
+        }
+
+        function simplifyStructure() {
+            flashSprite('simplify', 2);
+            eventcount++;
+            document.images['molcanvas'].src = baseurl + "simplify&sessionid=" + sessionid + "&key_cur=" + key_cur + "&key_bck=" + key_bck + "&cnt=" + eventcount + "&speed=" + connectionSpeed() + "&nopng=" + isOldIE() + "&vid=" + vid + "&vhadd=" + vhadd;
+            updateTopinfo(0);
+        }
+
+        function modifyHydrogen() {
+            flashSprite('hydrogen', 2);
+            var f = document.forms['editor'].elements['hmode'];
+            var hmode = f.options[f.selectedIndex].value;
+            eventcount++;
+            document.images['molcanvas'].src = baseurl + "hydrogen&sessionid=" + sessionid + "&key_cur=" + key_cur + "&key_bck=" + key_bck + "&cnt=" + eventcount + "&hmode=" + hmode + "&speed=" + connectionSpeed() + "&nopng=" + isOldIE() + "&vid=" + vid + "&vhadd=" + vhadd;
+            updateTopinfo(0);
+            closeSubwindows();
+        }
+
+        // paste by typing in a name on the topline text entry
+        function entryPaste() {
+            var w = self.frames['toplineframe'];
+            var smiles = w.document.forms[0].elements['toplineentry'].value;
+            eventcount++;
+            document.images['molcanvas'].src = baseurl + "paste&sessionid=" + sessionid + "&key_cur=" + key_cur + "&key_bck=" + key_bck + "&cnt=" + eventcount + "&smiles=" + encodeURIComponent(smiles) + "&speed=" + connectionSpeed() + "&nopng=" + isOldIE() + "&vid=" + vid + "&vhadd=" + vhadd;
+            closeSubwindows();
+            // database lookups are slow, so we do not use the normal timeout
+            self.setTimeout('delayedTopinfoUpdate();', 1000);
+            return false;
+        }
+
+        function newDrawing(doclear) {
+            eventcount++;
+            if (doclear) {
+                document.images['molcanvas'].src = baseurl + "clear&sessionid=" + sessionid + "&key_cur=" + key_cur + "&key_bck=" + key_bck + "&cnt=" + eventcount + "&speed=" + connectionSpeed() + "&nopng=" + isOldIE() + "&vid=" + vid + "&vhadd=" + vhadd;
+            } else {
+                document.images['molcanvas'].src = baseurl + "redraw&sessionid=" + sessionid + "&key_cur=" + key_cur + "&key_bck=" + key_bck + "&cnt=" + eventcount + "&speed=" + connectionSpeed() + "&nopng=" + isOldIE() + "&vid=" + vid + "&vhadd=" + vhadd;
+            }
+            flashSprite('new', 2);
+            setMode('single');
+            document.forms['editor'].elements['output'].selectedIndex = 0;
+            // may need time to process
+            updateTopinfo(0);
+            closeSubwindows();
+            // remove form data memory from sinkhole, preventing message on reload of editor page
+            try {
+                self.frames['void'].document.open();
+                self.frames['void'].document.close();
+            } catch (e) {
+                ;
+            }
+        }
+
+        // left = 1, mid = 2, right = 3
+        function eventButton(e) {
+            if (!e) e = window.event;
+            if (e.which) {
+                return e.which;
+            } else if (e.button) {
+                if (e.button == 0) return 1;
+                if (e.button == 4) return 2;
+                if (e.button == 2) return 3;
+                // mozilla: left=0, middle 1, right 2
+                // IE: left 1, middle 4, right 2
+                return 1;
+            }
+            return 0;
+        }
+
+        function eventCtrl(e) {
+            if (!e) e = window.event;
+            if (e.ctrlKey) return e.ctrlKey;
+            if (e.modifiers) return (e.modifiers & Event.CONTROL_MASK) != 0;
+            return false;
+        }
+
+        function eventShift(e) {
+            if (!e) e = window.event;
+            if (e.shiftKey) return e.shiftKey;
+            if (e.modifiers) return (e.modifiers & Event.SHIFT_MASK) != 0;
+            return false;
+        }
+
+        function eventX(e) {
+            var posx = 0;
+            if (e.offsetX) {
+                return e.offsetX;
+            }
+            if (e.pageX) {
+                posx = e.pageX;
+            } else if (e.clientX) {
+                posx = e.clientX + document.body.scrollLeft;
+            }
+            x = posx - findPosX(document.images.molcanvas);
+            if (isSafari()) x -= 10;
+            return x;
+        }
+
+        function eventY(e) {
+            var posy = 0;
+            if (e.offsetY) return e.offsetY;
+            if (e.pageY) {
+                posy = e.pageY;
+            } else if (e.clientY) {
+                posy = e.clientY + document.body.scrollTop;
+            }
+            y = posy - findPosY(document.images.molcanvas);
+            if (isSafari()) y -= 10;
+            return y;
+        }
+
+        function findPosX(obj) {
+            var curleft = 0;
+            if (obj.offsetParent) {
+                while (obj.offsetParent) {
+                    curleft += obj.offsetLeft
+                    obj = obj.offsetParent;
+                }
+            } else if (obj.x) curleft += obj.x;
+            return curleft;
+        }
+
+        function findPosY(obj) {
+            var curtop = 0;
+            if (obj.offsetParent) {
+                while (obj.offsetParent) {
+                    curtop += obj.offsetTop
+                    obj = obj.offsetParent;
+                }
+            } else if (obj.y) curtop += obj.y;
+            return curtop;
+        }
+
+        function toplineText(txt, color) {
+            var w = self.frames['toplineframe'];
+            if (w && w.document && w.document.forms && w.document.forms.length) {
+                var e = w.document.forms[0].elements['toplineentry'];
+                e.value = txt;
+                e.style.color = color;
+            }
+        }
+
+        function isExpensiveQuery(style) {
+            return style == "cid" || style == "aid" ||
+                style == "name" || style == "cas" || style == "einecs" ||
+                style.match(/_id/) ||
+                style.match(/_page/) ||
+                style.match(/_url/);
+        }
+
+        function delayedTopinfoUpdate() {
+            eventcount++;
+            var f = document.forms['editor'].elements['output'];
+            var style = f.options[f.selectedIndex].value;
+            var w = self.frames['toplineframe'];
+            toplineText("fetching...", "#909090");
+            var url = baseurl + "smiles&sessionid=" + sessionid + "&key_cur=" + key_cur + "&key_bck=" + key_bck + "&style=" + style + "&cnt=" + eventcount;
+            w.location.replace(url);
+            timeoutid = null;
+            if (isExpensiveQuery(style)) {
+                // reset to smiles for these expensive ops
+                f.selectedIndex = 0;
+            }
+        }
+
+        function updateTopinfo(immediate) {
+            var f = document.forms['editor'].elements['output'];
+            var style = f.options[f.selectedIndex].value;
+            if (timeoutid) {
+                self.clearTimeout(timeoutid);
+                timeoutid = null;
+            }
+            var w = self.frames['toplineframe'];
+            if (immediate == -1) {
+                toplineText("", "#000000");
+                return;
+            } else if (immediate == 1) {
+                toplineText("fetching...", "#909090");
+                delayedTopinfoUpdate();
+                return;
+            }
+            toplineText("suspended...", "#C0C0C0");
+            if (isExpensiveQuery(style)) {
+                // these are complex, give more time
+                timeoutid = self.setTimeout('delayedTopinfoUpdate();', complex_lookup_delay);
+            } else {
+                timeoutid = self.setTimeout('delayedTopinfoUpdate();', simple_lookup_delay);
+            }
+        }
+
+        function undoStructure() {
+            flashSprite('undo', 2);
+            eventcount++;
+            document.images['molcanvas'].src = baseurl + "undo&sessionid=" + sessionid + "&key_cur=" + key_cur + "&key_bck=" + key_bck + "&cnt=" + eventcount + "&speed=" + connectionSpeed() + "&nopng=" + isOldIE() + "&vid=" + vid + "&vhadd=" + vhadd;
+            updateTopinfo(0);
+            closeSubwindows();
+        }
+
+        function copyStructure() {
+            var w = self.frames['toplineframe'];
+            var smiles = w.document.forms[0].elements['toplineentry'].value;
+            if (window.clipboardData && window.clipboardData.setData) {
+                window.clipboardData.setData('Text', smiles);
+            }
+        }
+
+        function cleanStructure() {
+            flashSprite('clean', 2);
+            eventcount++;
+            document.images['molcanvas'].src = baseurl + "clean&sessionid=" + sessionid + "&key_cur=" + key_cur + "&key_bck=" + key_bck + "&cnt=" + eventcount + "&speed=" + connectionSpeed() + "&nopng=" + isOldIE() + "&vid=" + vid + "&vhadd=" + vhadd;
+        }
+
+        function imgMouseDown(e) {
+            self.focus();
+            if (!e) e = window.event;
+            var b = eventButton(e);
+            var x = eventX(e);
+            var y = eventY(e);
+            downx = x;
+            downy = y;
+            lasttime = -1;
+            catchupx = catchupy = -1;
+            catchupctrl = eventCtrl(e);
+            catchupshift = eventShift(e);
+            if (b == 3) {
+            } else if (mode == 'template') {
+                // do nothing. template is now inserted on mouseup. changed by Bo.
+            } else {
+                // document.images['molcanvas'].src = baseurl + "down&sessionid="+"&key_cur="+key_cur+"&key_bck="+key_bck+sessionid+"&x="+x+"&y="+y+"&speed="+connectionSpeed()+"&nopng="+isOldIE()+"&vid="+vid+"&vhadd="+vhadd;
+            }
+            if (e.stopPropagation) e.stopPropagation();
+            else e.cancelBubble = true;
+            if (e.preventDefault) e.preventDefault();
+            return false;
+        }
+
+        function doneDrawing() {
+            flashSprite('done', 2);
+            closeSubwindows();
+            window.close();
+        }
+
+        function closeSubwindows() {
+            if (querywin) querywin.close();
+            if (templatewin) templatewin.close();
+            querywin = null;
+            templatewin = null;
+        }
+
+
+        function imgMouseUp(e) {
+            if (lastx == -2) return; // for example, spurious mouse up after the image was left
+            if (!e) e = window.event;
+            var b = eventButton(e);
+            var x = eventX(e);
+            var y = eventY(e);
+            eventcount++;
+            if (b == 3) {
+                if (downx != -1) {
+                    document.images['molcanvas'].src = baseurl + "up&sessionid=" + sessionid + "&key_cur=" + key_cur + "&key_bck=" + key_bck + "&x=" + x + "&y=" + y + "&downx=" + downx + "&downy=" + downy + "&mode=del&ctrl=" + catchupctrl + "&shift=" + catchupshift + "&cnt=" + eventcount + "&speed=" + connectionSpeed() + "&nopng=" + isOldIE() + "&vid=" + vid + "&vhadd=" + vhadd;
+                }
+            } else if (mode == 'qry') {
+                fillHidden('getquery1', x, y);
+                document.forms['editor'].submit();
+                // querywin.focus();
+            } else if (mode == 'template') {
+                if (downx != -1 && template) {
+                    document.images['molcanvas'].src = baseurl + "paste&sessionid=" + sessionid + "&key_cur=" + key_cur + "&key_bck=" + key_bck + "&x=" + x + "&y=" + y + "&downx=" + downx + "&downy=" + downy + "&mode=" + mode + "&smiles=" + encodeURIComponent(template) + "&ctrl=" + catchupctrl + "&shift=" + catchupshift + "&cnt=" + eventcount + "&speed=" + connectionSpeed() + "&nopng=" + isOldIE() + "&vid=" + vid + "&vhadd=" + vhadd;
+                }
+                template = null;
+                if (templatewin && templatewin.selectCell) templatewin.selectCell('done');
+                setMode('move');
+            } else {
+                // prevent acting on a doubleclick by checking the downx value
+                if (downx != -1) {
+                    document.images['molcanvas'].src = baseurl + "up&sessionid=" + sessionid + "&key_cur=" + key_cur + "&key_bck=" + key_bck + "&x=" + x + "&y=" + y + "&downx=" + downx + "&downy=" + downy + "&mode=" + mode + "&ctrl=" + catchupctrl + "&shift=" + catchupshift + "&cnt=" + eventcount + "&speed=" + connectionSpeed() + "&nopng=" + isOldIE() + "&vid=" + vid + "&vhadd=" + vhadd;
+                }
+            }
+            lastx = lasty = downx = downy = -1;
+            lasttime = -1;
+            if (e.stopPropagation) e.stopPropagation();
+            else e.cancelBubble = true;
+            if (e.preventDefault) e.preventDefault();
+            if (mode != 'mirrorx' && mode != 'mirrory' && mode != 'rotate' && mode != "qry") {
+                updateTopinfo(0);
+            }
+            catchupx = catchupy = -1;
+            catchupshift = catchupctrl = false;
+            return false;
+        }
+
+        function connectionSpeed() {
+            return document.forms['editor'].elements['speed'].selectedIndex;
+        }
+
+        function imgMouseMoveCatchup() {
+            if (catchupx < 0) return;
+            if (catchupbutton == 3) return;
+            if (lastx == catchupx && lasty == catchupy) {
+                catchupx = catchupy = -1;
+                return;
+            }
+            var x = catchupx;
+            var y = catchupy;
+            catchupx = catchupy = -1;
+            eventcount++;
+            document.images['molcanvas'].src = baseurl + "move&sessionid=" + sessionid + "&key_cur=" + key_cur + "&key_bck=" + key_bck + "&x=" + x + "&y=" + y + "&downx=" + downx + "&downy=" + downy + "&mode=" + mode + "&ctrl=" + catchupctrl + "&shift=" + catchupshift + "&cnt=" + eventcount + "&speed=" + connectionSpeed() + "&vid=" + vid + "&vhadd=" + vhadd;
+        }
+
+        function imgMouseMove(e) {
+            if (catchupid) self.clearTimeout(catchupid);
+            curx = eventX(e);
+            cury = eventY(e);
+            if (downx < 0) return;
+            if (!e) e = window.event;
+            var b = eventButton(e);
+            catchupx = catchupy = -1;
+            catchupctrl = eventCtrl(e);
+            catchupshift = eventShift(e);
+            catchupbutton = b;
+            var d = new Date();
+            var dx = curx - lastx;
+            var dy = cury - lasty;
+            var now = d.getTime();
+            var dt = now - lasttime;
+            if (Math.sqrt(dx * dx + dy * dy) < 5) return;
+            if (Math.sqrt(dx * dx + dy * dy) < 99999 && lasttime > 0) {
+                var effective_draw_delay = draw_catchup_delay / (connectionSpeed() + 1);
+                if (now - lasttime < effective_draw_delay * 1.33) {
+                    catchupx = curx;
+                    catchupy = cury;
+                    catchupid = self.setTimeout('imgMouseMoveCatchup();', effective_draw_delay);
+                    return;
+                }
+            }
+            lasttime = now;
+            if (connectionSpeed()) {
+                lastx = curx;
+                lasty = cury;
+                if (b != 3) {
+                    eventcount++;
+                    document.images['molcanvas'].src = baseurl + "move&sessionid=" + sessionid + "&key_cur=" + key_cur + "&key_bck=" + key_bck + "&x=" + curx + "&y=" + cury + "&downx=" + downx + "&downy=" + downy + "&mode=" + mode + "&ctrl=" + catchupctrl + "&shift=" + catchupshift + "&cnt=" + eventcount + "&speed=" + connectionSpeed() + "&vid=" + vid + "&vhadd=" + vhadd;
+                }
+            }
+            if (e.stopPropagation) e.stopPropagation();
+            else e.cancelBubble = true;
+            if (e.preventDefault) e.preventDefault();
+        }
+
+        function imgEnter(e) {
+            if (!e) e = window.event;
+            if (e.stopPropagation) e.stopPropagation();
+            else e.cancelBubble = true;
+            if (e.preventDefault) e.preventDefault();
+            // window.focus();
+        }
+
+        function imgLeave(e) {
+            if (!e) e = window.event;
+            if (downx < 0) return;
+            eventcount++;
+            document.images['molcanvas'].src = baseurl + "cancel&sessionid=" + sessionid + "&key_cur=" + key_cur + "&key_bck=" + key_bck + "&cnt=" + eventcount + "&speed=" + connectionSpeed();
+            lastx = -2;
+            lasty = downx = downy = -1;
+            lasttime = -1;
+            catchupx = catchupy = -1;
+            catchupshift = catchupctrl = false;
+            if (e.stopPropagation) e.stopPropagation();
+            else e.cancelBubble = true;
+            if (e.preventDefault) e.preventDefault();
+            window.blur();
+        }
+
+        function imgContext(e) {
+            if (!e) e = window.event;
+            if (e.stopPropagation) e.stopPropagation();
+            else e.cancelBubble = true;
+            return false;
+        }
+
+        function imgDropped(e) {
+            if (!e) e = window.event;
+            //	alert('dropped');
+        }
+
+        function imgDragEnter(e) {
+            //	if (!e) e = window.event;
+            //	if (e.stopPropagation) e.stopPropagation();
+            //	else e.cancelBubble = true;
+            //	if (e.preventDefault) e.preventDefault();
+            return true;
+        }
+
+        function imgDragOver(e) {
+            //	if (!e) e = window.event;
+            //	if (e.stopPropagation) e.stopPropagation();
+            //	else e.cancelBubble = true;
+            //	if (e.preventDefault) e.preventDefault();
+            return true;
+        }
+
+        function docKeypress(e) {
+            if (!e) e = window.event;
+            if (e.keyCode) code = e.keyCode;
+            else code = e.which;
+            var c = String.fromCharCode(code);
+            var done = 0;
+            switch (code) {
+                case 2:
+                    // ctrl-b
+                    done = 1;
+                    clean();
+                    break;
+                case 14:
+                    // ctrl-n
+                    newDrawing(1);
+                    done = 1;
+                    break;
+                case 17:
+                    // ctrl-q
+                    //closeSubwindows();
+                    //window.close();
+                    //done = 1;
+                    break;
+                case 19:
+                    // ctrl-s
+                    exportStructure();
+                    done = 1;
+                    break;
+                case 22:
+                    // ctrl-v
+                    done = 1;
+                    pasteStructure(e);
+                    break;
+                case 25:
+                case 26:
+                    // ctrl-y and ctrl-z
+                    undoStructure();
+                    done = 1;
+                    break;
+                case 3:
+                    // ctrl-c
+                    copyStructure();
+                    done = 1;
+                    break;
+                case 24:
+                    // ctrl-x
+                    copyStructure();
+                    newDrawing(1);
+                    done = 1;
+                    break;
+                case 46: // del
+                case 8: // backspace
+                    var x = eventX(e);
+                    var y = eventY(e);
+                    // does not seem to yield useful values for key events on FF. Works on IE
+                    if (x < 0 || x > 550 || y < 0 || y > 398) {
+                        // substitute with last move move position - FF hack
+                        x = curx;
+                        y = cury;
+                    }
+                    eventcount++;
+                    document.images['molcanvas'].src = baseurl + "up&sessionid=" + sessionid + "&key_cur=" + key_cur + "&key_bck=" + key_bck + "&x=" + x + "&y=" + y + "&downx=" + x + "&downy=" + y + "&mode=del&ctrl=" + catchupctrl + "&shift=" + catchupshift + "&cnt=" + eventcount + "&speed=" + connectionSpeed() + "&nopng=" + isOldIE() + "&vid=" + vid + "&vhadd=" + vhadd;
+                    done = 1;
+                    catchupx = catchupy = -1;
+                    catchupshift = catchupctrl = false;
+                    updateTopinfo(0);
+                    break;
+            }
+            if (!done) switch (c) {
+                case "A":
+                    setMode('Al');
+                    break;
+                case "b":
+                    if (eventCtrl(e)) {
+                        clean();
+                    } else {
+                        setMode('B');
+                    }
+                    break;
+                case "B":
+                    setMode('Br');
+                    break;
+                case "c":
+                    if (eventCtrl(e)) {
+                        copyStructure();
+                    } else {
+                        setMode('C');
+                    }
+                    break;
+                case "C":
+                    if (eventCtrl(e)) {
+                        copyStructure();
+                    } else {
+                        setMode('Cl');
+                    }
+                    break;
+                case "d":
+                    setMode('D', 'misc');
+                    break;
+                case "f":
+                    setMode('F');
+                    break;
+                case "F":
+                    setMode('Fe');
+                    break;
+                case "G":
+                    setMode('Ge');
+                    break;
+                case "h":
+                    setMode('H');
+                    break;
+                case "H":
+                    setMode('Hg');
+                    break;
+                case "i":
+                    setMode('I');
+                    break;
+                case "I":
+                    setMode('In');
+                    break;
+                case "k":
+                    setMode('K');
+                    break;
+                case "K":
+                    setMode('Kr');
+                    break;
+                case "L":
+                    setMode('Li');
+                    break;
+                case "m":
+                    setMode('move');
+                    break;
+                case "M":
+                    setMode('Mg');
+                    break;
+                case "n":
+                    if (eventCtrl(e)) {
+                        newDrawing(1);
+                    } else {
+                        setMode('N');
+                    }
+                    break;
+                case "N":
+                    if (eventCtrl(e)) {
+                        newDrawing(1);
+                    } else {
+                        setMode('Na');
+                    }
+                    break;
+                case "o":
+                    setMode('O');
+                    break;
+                case "O":
+                    setMode('Os');
+                    break;
+                case "p":
+                    setMode('P');
+                    break;
+                case "P":
+                    setMode('Pd');
+                    break;
+                case "q":
+                    //if (eventCtrl(e)) {
+                    //closeSubwindows();
+                    //window.close();
+                    //} else {
+                    setMode('qry');
+                    //}
+                    break;
+                case "r":
+                    setMode('rotate');
+                    break;
+                case "R":
+                    setMode('Ru');
+                    break;
+                case "s":
+                    if (eventCtrl(e)) {
+                        exportStructure();
+                    } else {
+                        setMode('S');
+                    }
+                    break;
+                case "S":
+                    setMode('Si');
+                    break;
+                case "t":
+                    setMode('T', 'misc');
+                    break;
+                case "T":
+                    setMode('Te');
+                    break;
+                case "u":
+                    setMode('U');
+                    break;
+                case "U":
+                    undoStructure();
+                    break;
+                case "v":
+                    if (eventCtrl(e)) {
+                        pasteStructure(e);
+                    } else {
+                        setMode('V');
+                    }
+                    break;
+                case "w":
+                    setMode('W');
+                    break;
+                case "x":
+                    if (eventCtrl(e)) {
+                        copyStructure();
+                        newDrawing(1);
+                    } else {
+                        setMode('del');
+                    }
+                    break;
+                case "X":
+                    if (eventCtrl(e)) {
+                        copyStructure();
+                        newDrawing(1);
+                    } else {
+                        setMode('Xe');
+                    }
+                    break;
+                case "y":
+                    if (eventCtrl(e)) {
+                        undoStructure();
+                    } else {
+                        setMode('Y');
+                    }
+                    break;
+                case "Y":
+                    setMode('Yb', 'misc');
+                    break;
+                case "z":
+                    if (eventCtrl(e)) {
+                        undoStructure();
+                    }
+                    break;
+                case "Z":
+                    setMode('Zn');
+                    break;
+                case ">":
+                    setMode("down");
+                    break;
+                case "<":
+                    setMode("up");
+                    break;
+                case "+":
+                    setMode('plus');
+                    break;
+                case "[":
+                    setMode('template');
+                    break;
+                case "/":
+                    setMode('either');
+                    break;
+                case "|":
+                    setMode('any');
+                    break;
+                case "0":
+                    setMode('phenyl');
+                    break;
+                case "1":
+                case "-":
+                    setMode('single');
+                    break;
+                case "2":
+                case "=":
+                    setMode('double');
+                    break;
+                case "3":
+                case "#":
+                    setMode('triple');
+                    break;
+                case "4":
+                    setMode('r4');
+                    break;
+                case "5":
+                    setMode('r5');
+                    break;
+                case "6":
+                    setMode('r6');
+                    break;
+                case "7":
+                    setMode('r7');
+                    break;
+                case "8":
+                    setMode('r8');
+                    break;
+                case "?":
+                case "*":
+                    setMode('qm', 'misc');
+                    break;
+                default:
+                // alert(code);
+            }
+            if (e.stopPropagation) e.stopPropagation();
+            else e.cancelBubble = true;
+            if (e.preventDefault) e.preventDefault();
+        }
+
+        function alignSprites() {
+            for (var s in sprites) {
+                var o = document.getElementById(s);
+                if (o) o.style.backgroundPosition = "0px -" + sprites[s] + "px";
+            }
+        }
+
+        function initSession() {
+            checkDomain();
+            alignSprites();
+            try {
+                document.images['molcanvas'].captureEvents(Event.MOUSEDOWN | Event.MOUSEUP | Event.MOUSEMOVE | Event.MOUSEOVER | Event.MOUSEOUT | Event.DRAGDROP);
+            } catch (err) {
+                ;
+            }
+            try {
+                window.captureEvents(Event.KEYPRESS);
+            } catch (err) {
+                ;
+            }
+            // document.onkeydown = docKeypress;
+            try {
+                document.captureEvents(Event.KEYPRESS);
+            } catch (err) {
+                ;
+            }
+            var d = new Date();
+            sessionid = d.getTime();
+            fillHidden('init', 0, 0);
+            var query = location.search.substr(1);
+            if (query != "") {
+                document.forms['editor'].action += "/?";
+                var q = query.split("&");
+                n = 0;
+                for (i in q) {
+                    var field = q[i].slice(0, q[i].indexOf("="));
+                    var val = q[i].slice(q[i].indexOf("=") + 1);
+                    if (field == "cidlist" || field == "sidlist") {
+                        val = val.replace(/,/, " ");
+                    }
+                    val = val.replace(/\+/g, " ");
+                    // val = decodeURIComponent(val);
+                    if (document.forms['editor'].elements[field]) {
+                        document.forms['editor'].elements[field].value = val;
+                    } else {
+                        if (n++) document.forms['editor'].action += "&";
+                        document.forms['editor'].action += field + "=" + val;
+                    }
+                    if (field == 'vid') {
+                        vid = val;
+                    } else if (field == 'vhadd') {
+                        vhadd = val;
+                    }
+                }
+            }
+            document.forms['editor'].submit();
+        }
+
+        function closeSession() {
+            closeSubwindows();
+            document.images['molcanvas'].src = baseurl + "close&sessionid=" + sessionid + "&key_cur=" + key_cur + "&key_bck=" + key_bck + "&speed=" + connectionSpeed();
+        }
+
+        function doNothing() {
+            alert('this function should not be called!');
+        }
+
+        function fillHidden(curevent, x, y) {
+            document.forms['editor'].elements['key_cur'].value = key_cur;
+            document.forms['editor'].elements['key_bck'].value = key_bck;
+            document.forms['editor'].elements['drawevent'].value = curevent;
+            document.forms['editor'].elements['sessionid'].value = sessionid;
+            document.forms['editor'].elements['cnt'].value = eventcount;
+            document.forms['editor'].elements['downx'].value = downx;
+            document.forms['editor'].elements['downy'].value = downy;
+            document.forms['editor'].elements['x'].value = x;
+            document.forms['editor'].elements['y'].value = y;
+            document.forms['editor'].elements['shift'].value = catchupshift;
+            document.forms['editor'].elements['ctrl'].value = catchupctrl;
+            document.forms['editor'].elements['mode'].value = mode;
+            document.forms['editor'].elements['vid'].value = vid;
+            document.forms['editor'].elements['vhadd'].value = vhadd;
+        }
+
+    </script>
+</head>
+<body onload="initSession();" onunload="closeSession();" onkeypress="docKeypress(event);" ondragstart="return false;" onselectstart="return false;">
+    <form name="editor" enctype="multipart/form-data" method="post" target="void" action="https://pubchem.ncbi.nlm.nih.gov/edit2/editsrv.fcgi">
+        <input type=hidden name="key_cur" value="">
+        <input type=hidden name="key_bck" value="">
+        <input type=hidden name="drawevent" value="">
+        <input type=hidden name="sessionid" value="">
+        <input type=hidden name="cnt" value="">
+        <input type=hidden name="mode" value="">
+        <input type=hidden name="shift" value="">
+        <input type=hidden name="ctrl" value="">
+        <input type=hidden name="x" value="">
+        <input type=hidden name="y" value="">
+        <input type=hidden name="downx" value="">
+        <input type=hidden name="downy" value="">
+        <input type=hidden name="vid" value="">
+        <input type=hidden name="vhadd" value="0">
+        <table cellspacing="0" cellpadding="0" border=1>
+            <tr>
+                <td colspan=4 class="lefttd">
+                    <select name=speed>
+                        <option value="0">Dialup
+                        <option value="1" selected>Broadband
+                    </select>
+                </td>
+                <td colspan=4 class="lefttd">
+                    <select name=output onchange="updateTopinfo(1);">
+                        <option value="smiles" selected>SMILES
+                        <option value="smarts">SMARTS
+                        <option value="stdinchi">StdInChI
+                        <option value="stdinchikey">StdInChIKey
+                        <option value="hformula">Formula
+
+                    </select>
+                </td>
+                <td colspan=7>
+                    <!--
+                        The "void" frame is the target for sending back JS commands from the server.
+                    -->
+                    <iframe width="0" height="0" border=0 frameborder=0 name="void" marginheight=0 marginwidth=0 scrolling="no" src=empty.html></iframe><iframe width="100%" height=28 border=0 frameborder=0 name="toplineframe" marginheight=2 marginwidth=2 valign=center scrolling="no" src="empty_topline.html"></iframe>
+                </td>
+            </tr>
+            <tr>
+                <td id="new" colspan=2 style="background: url(img/all.gif) no-repeat;" onclick="flashSprite('new',0,2); newDrawing(1);">&nbsp;</td>
+                <td id="undo" style="background: url(img/all.gif) no-repeat;" onclick="undoStructure();"><img src="img/blankicon.gif" alt="Undo last operation"></td>
+                <td id="clean" style="background: url(img/all.gif) no-repeat;" onclick="cleanStructure();"><img src="img/blankicon.gif" alt="Clean structure"></td>
+                <td id="simplify" style="background: url(img/all.gif) no-repeat;" onclick="simplifyStructure();"><img src="img/blankicon.gif" alt="Simplify structure (Ertl algorithm)"></td>
+                <td id="del" style="font-size: 8pt;" onclick="setMode('del');">Del</td>
+                <td id="qry" style="font-size: 8pt;" onclick="setMode('qry');">Qry</td>
+                <td id="move" style="background: url(img/all.gif) no-repeat;" onclick="setMode('move');"><img src="img/blankicon.gif" alt="Move molecule, atom, or bond"></td>
+                <td id="rotate" style="background: url(img/all.gif) no-repeat;" onclick="setMode('rotate');"><img src="img/blankicon.gif" alt="Rotate around molecule center, atom or bond"></td>
+                <td id="mirrorx" style="background: url(img/all.gif) no-repeat;" onclick="setMode('mirrorx');"><img src="img/blankicon.gif" alt="Mirror molecule on x-axis, or flip bond"></td>
+                <td id="mirrory" style="background: url(img/all.gif) no-repeat;" onclick="setMode('mirrory');"><img src="img/blankicon.gif" alt="Mirror molecule on y-axis, or flip bond"></td>
+                <td rowspan=19 colspan=2 align=right bgcolor="#000000">
+                    <img height=398 width=550 src="empty.gif" name="molcanvas" border=0 alt="Structure Drawing Area"
+                         onMouseDown="imgMouseDown(event);"
+                         onMouseUp="imgMouseUp(event);"
+                         onMouseMove="imgMouseMove(event);"
+                         onMouseOut="imgLeave(event);"
+                         onMouseOver="imgEnter(event);"
+                         onDrag="imgMouseMove(event);"
+                         onDragend="imgMouseUp(event);"
+                         onDragstart="return false;"
+                         onDragenter="imgDragEnter(event);"
+                         onDragleave="imgLeave(event);"
+                         onDragover="imgDragOver(event);"
+                         onDrop="imgDropped(event);"
+                         onContextMenu="return imgContext(event);"
+                         onBeforePaste="return false;"
+                         onPaste="return pasteStructure(event);">
+                </td>
+            </tr>
+            <tr>
+                <td colspan=11 class="blanktd"><img height=3 src="img/singlepixel.gif" alt=""></td>
+            </tr>
+            <tr>
+                <td id="single" style="background: url(img/all.gif) no-repeat;" onclick="setMode('single');"><img src="img/blankicon.gif" alt="Enter single-bond drawing mode alt=" Enter single-bond drawing mode""></td>
+                <td id="double" style="background: url(img/all.gif) no-repeat;" onclick="setMode('double');"><img src="img/blankicon.gif" alt="Enter double-bond drawing mode"></td>
+                <td id="triple" style="background: url(img/all.gif) no-repeat;" onclick="setMode('triple');"><img src="img/blankicon.gif" alt="Enter triple-bond drawing mode"></td>
+                <td id="up" style="background: url(img/all.gif) no-repeat;" onclick="setMode('up');"><img src="img/blankicon.gif" alt="Enter up-wedge drawing mode"></td>
+                <td id="down" style="background: url(img/all.gif) no-repeat;" onclick="setMode('down');"><img src="img/blankicon.gif" alt="Enter down-wedge drawing mode"></td>
+                <td id="any" style="background: url(img/all.gif) no-repeat;" onclick="setMode('any');"><img src="img/blankicon.gif" alt="Enter any-bond drawing mode"></td>
+                <td id="either" style="background: url(img/all.gif) no-repeat;" onclick="setMode('either');"><img src="img/blankicon.gif" alt="Enter stereo-either-bond drawing mode"></td>
+                <td id="wiggly" style="background: url(img/all.gif) no-repeat;" onclick="setMode('wiggly');"><img src="img/blankicon.gif" alt="Enter wiggly-bond drawing mode"></td>
+                <td id="sa" style="font-size: 8pt;" onclick="setMode('sa');">S/A</td>
+                <td id="da" style="font-size: 8pt;" onclick="setMode('da');">D/A</td>
+                <td id="sd" style="font-size: 8pt;" onclick="setMode('sd');">S/D</td>
+            </tr>
+            <tr>
+                <td id="r3" style="background: url(img/all.gif) no-repeat;" onclick="setMode('r3');"><img src="img/blankicon.gif" alt="Draw or link 3-membered ring"></td>
+                <td id="r4" style="background: url(img/all.gif) no-repeat;" onclick="setMode('r4');"><img src="img/blankicon.gif" alt="Draw or link 4-membered ring"></td>
+                <td id="r5" style="background: url(img/all.gif) no-repeat;" onclick="setMode('r5');"><img src="img/blankicon.gif" alt="Draw or link 5-membered ring"></td>
+                <td id="r6" style="background: url(img/all.gif) no-repeat;" onclick="setMode('r6');"><img src="img/blankicon.gif" alt="Draw or link 6-membered ring"></td>
+                <td id="r7" style="background: url(img/all.gif) no-repeat;" onclick="setMode('r7');"><img src="img/blankicon.gif" alt="Draw or link 7-membered ring"></td>
+                <td id="r8" style="background: url(img/all.gif) no-repeat;" onclick="setMode('r8');"><img src="img/blankicon.gif" alt="Draw or link 8-membered ring"></td>
+                <td id="phenyl" style="background: url(img/all.gif) no-repeat;" onclick="setMode('phenyl');"><img src="img/blankicon.gif" alt="Draw or link 3-membered ring"></td>
+                <td id="template" style="background: url(img/all.gif) no-repeat;" onclick="openTemplates();"><img src="img/blankicon.gif" alt="Open templates window - select structure and paste it into drawing area"></td>
+                <td id="plus" style="font-size: 12pt;" onclick="setMode('plus');">&#8853;</td>
+                <td id="minus" style="font-size: 12pt;" onclick="setMode('minus');">&#8854;</td>
+                <td id="radical" style="font-size: 12pt;" onclick="setMode('radical');">&#8857;</td>
+            </tr>
+            <tr>
+                <td id="ethyl" style="background: url(img/all.gif) no-repeat;" onclick="setMode('ethyl');"><img src="img/blankicon.gif" alt="Draw ethyl fragment"></td>
+                <td id="propyl" style="background: url(img/all.gif) no-repeat;" onclick="setMode('propyl');"><img src="img/blankicon.gif" alt="Draw n-proyl fragment"></td>
+                <td id="ipropyl" style="background: url(img/all.gif) no-repeat;" onclick="setMode('ipropyl');"><img src="img/blankicon.gif" alt="Draw i-proyl fragment"></td>
+                <td id="butyl" style="background: url(img/all.gif) no-repeat;" onclick="setMode('butyl');"><img src="img/blankicon.gif" alt="Draw n-butyl fragment"></td>
+                <td id="ibutyl" style="background: url(img/all.gif) no-repeat;" onclick="setMode('ibutyl');"><img src="img/blankicon.gif" alt="Draw i-butyl fragment"></td>
+                <td id="sbutyl" style="background: url(img/all.gif) no-repeat;" onclick="setMode('sbutyl');"><img src="img/blankicon.gif" alt="Draw s-butyl fragment"></td>
+                <td id="tbutyl" style="background: url(img/all.gif) no-repeat;" onclick="setMode('tbutyl');"><img src="img/blankicon.gif" alt="Draw t-butyl fragment"></td>
+                <td id="cho" style="font-size: 6pt;" onclick="setMode('cho');">CHO</td>
+                <td id="co2h" style="font-size: 6pt;" onclick="setMode('co2h');">CO<sub>2</sub>H</td>
+                <td id="no2" style="font-size: 6pt;" onclick="setMode('no2');">NO<sub>2</sub></td>
+                <td id="so3h" style="font-size: 6pt;" onclick="setMode('so3h');">SO<sub>3</sub>H</td>
+            <tr>
+                <td colspan=11 class="blanktd"><img height=3 src="img/singlepixel.gif" alt=""></td>
+            </tr>
+            <tr>
+                <td id="H" onclick="setMode('H');">H</td>
+                <td class="blanktd"><img src="img/blankicon.gif"></td>
+                <td id="misc" onclick="setMiscElement();">?</td>
+                <td colspan=2 class="lefttd">
+                    <select name="miscelements" onchange="setMiscElement();">
+                        <option value="qm" selected>?
+                        <option value="D">D
+                        <option value="T">T
+                        <option value="La">La
+                        <option value="Ce">Ce
+                        <option value="Pr">Pr
+                        <option value="Nd">Nd
+                        <option value="Pm">Pm
+                        <option value="Sm">Sm
+                        <option value="Eu">Eu
+                        <option value="Gd">Gd
+                        <option value="Tb">Tb
+                        <option value="Dy">Dy
+                        <option value="Ho">Ho
+                        <option value="Er">Er
+                        <option value="Tm">Tm
+                        <option value="Yb">Yb
+                        <option value="Fr">Fr
+                        <option value="Ra">Ra
+                        <option value="Lr">Lr
+                        <option value="Ac">Ac
+                        <option value="Th">Th
+                        <option value="Pa">Pa
+                        <option value="U">U
+                        <option value="Np">Np
+                        <option value="Pu">Pu
+                        <option value="Am">Am
+                        <option value="Cm">Cm
+                        <option value="Bk">Bk
+                    </select>
+                </td>
+                <td class="blanktd">&nbsp;</td>
+                <td class="blanktd">&nbsp;</td>
+                <td class="blanktd">&nbsp;</td>
+                <td class="blanktd">&nbsp;</td>
+                <td class="blanktd">&nbsp;</td>
+                <td id="He" onclick="setMode('He');">He</td>
+            <tr>
+                <td id="Li" onclick="setMode('Li');">Li</td>
+                <td id="Be" onclick="setMode('Be');">Be</td>
+                <td class="blanktd"><img src="img/blankicon.gif"></td>
+                <td class="blanktd" colspan=2>&nbsp;</td>
+                <td id="B" onclick="setMode('B');">B</td>
+                <td id="C" onclick="setMode('C');">C</td>
+                <td id="N" onclick="setMode('N');">N</td>
+                <td id="O" onclick="setMode('O');">O</td>
+                <td id="F" onclick="setMode('F');">F</td>
+                <td id="Ne" onclick="setMode('Ne');">Ne</td>
+            </tr>
+            <tr>
+                <td id="Na" onclick="setMode('Na');">Na</td>
+                <td id="Mg" onclick="setMode('Mg');">Mg</td>
+                <td class="blanktd"><img src="img/blankicon.gif"></td>
+                <td class="blanktd" colspan=2>&nbsp;</td>
+                <td id="Al" onclick="setMode('Al');">Al</td>
+                <td id="Si" onclick="setMode('Si');">Si</td>
+                <td id="P" onclick="setMode('P');">P</td>
+                <td id="S" onclick="setMode('S');">S</td>
+                <td id="Cl" onclick="setMode('Cl');">Cl</td>
+                <td id="Ar" onclick="setMode('Ar');">Ar</td>
+            </tr>
+            <tr>
+                <td id="K" onclick="setMode('K');">K</td>
+                <td id="Ca" onclick="setMode('Ca');">Ca</td>
+                <td id="d1" onclick="setD1Element();">Sc</td>
+                <td colspan=2 class="lefttd">
+                    <select name="d1elements" onchange="setD1Element();">
+                        <option value="Sc">Sc
+                        <option value="Ti">Ti
+                        <option value="V">V
+                        <option value="Cr">Cr
+                        <option value="Mn">Mn
+                        <option value="Fe">Fe
+                        <option value="Co">Co
+                        <option value="Ni">Ni
+                        <option value="Cu">Cu
+                        <option value="Zn">Zn
+                    </select>
+                </td>
+                <td id="Ga" onclick="setMode('Ga');">Ga</td>
+                <td id="Ge" onclick="setMode('Ge');">Ge</td>
+                <td id="As" onclick="setMode('As');">As</td>
+                <td id="Se" onclick="setMode('Se');">Se</td>
+                <td id="Br" onclick="setMode('Br');">Br</td>
+                <td id="Kr" onclick="setMode('Kr');">Kr</td>
+            </tr>
+            <tr height=30>
+                <td id="Rb" onclick="setMode('Rb');">Rb</td>
+                <td id="Sr" onclick="setMode('Sr');">Sr</td>
+                <td id="d2" onclick="setD2Element();">Y</td>
+                <td colspan=2 class="lefttd">
+                    <select name="d2elements" onchange="setD2Element();">
+                        <option value="Y">Y
+                        <option value="Zr">Zr
+                        <option value="Nb">Nb
+                        <option value="Mo">Mo
+                        <option value="Tc">Tc
+                        <option value="Ru">Ru
+                        <option value="Rh">Rh
+                        <option value="Pd">Pd
+                        <option value="Ag">Ag
+                        <option value="Cd">Cd
+                    </select>
+                </td>
+                <td id="In" onclick="setMode('In');">In</td>
+                <td id="Sn" onclick="setMode('Sn');">Sn</td>
+                <td id="Sb" onclick="setMode('Sb');">Sb</td>
+                <td id="Te" onclick="setMode('Te');">Te</td>
+                <td id="I" onclick="setMode('I');">I</td>
+                <td id="Xe" onclick="setMode('Xe');">Xe</td>
+            <tr height=30>
+                <td id="Cs" onclick="setMode('Cs');">Cs</td>
+                <td id="Ba" onclick="setMode('Ba');">Ba</td>
+                <td id="d3" onclick="setD3Element();">Lu</td>
+                <td colspan=2 class="lefttd">
+                    <select name="d3elements" onchange="setD3Element();">
+                        <option value="Lu">Lu
+                        <option value="Hf">Hf
+                        <option value="Ta">Ta
+                        <option value="W">W
+                        <option value="Re">Re
+                        <option value="Os">Os
+                        <option value="Ir">Ir
+                        <option value="Pt">Pt
+                        <option value="Au">Au
+                        <option value="Hg">Hg
+                    </select>
+                </td>
+                <td id="Tl" onclick="setMode('Tl');">Tl</td>
+                <td id="Pb" onclick="setMode('Pb');">Pb</td>
+                <td id="Bi" onclick="setMode('Bi');">Bi</td>
+                <td id="Po" onclick="setMode('Po');">Po</td>
+                <td id="At" onclick="setMode('At');">At</td>
+                <td id="Rn" onclick="setMode('Rn');">Rn</td>
+            <tr>
+                <td colspan=11 class="blanktd"><img height=3 src="img/singlepixel.gif" alt=""></td>
+            </tr>
+            <tr>
+                <td id="export" colspan=2 style="background: url(img/all.gif) no-repeat;" onclick="exportStructure();"><img src="img/blankicon.gif"></td>
+                <td colspan=7 class="lefttd">
+                    <select name=format>
+                        <option value=smiles>SMILES
+                        <option value=smarts>SMARTS
+                        <option value=stdinchi>InChI
+                        <option value=sdf selected>MDL Molfile
+                        <option value=skc>ISIS Sketch
+                        <option value=tgf>ISIS TGF
+                        <option value=cdx>ChemDraw CDX
+                        <option value=cdxml>ChemDraw XML
+                        <option value=cml>CML
+                        <option value=mrv>MRV
+                        <option value=sln>Sybyl SLN
+                        <option value=jme>JME
+                        <option value=smd4>SMD
+                        <option value=png8>PNG Image
+                        <option value=pct>PICT Image
+                        <option value=gif8>GIF Image
+                        <option value=wmf>WMF Image
+                        <option value=svg>SVG Image
+                        <option value=eps>EPS Image
+                        <option value=mif>MIF Image
+                        <option value=swf>SWF Image
+                        <option value=pdf>PDF Image
+                    </select>
+                </td>
+                <td id="done" colspan=2 style="background: url(img/all.gif) no-repeat;" onclick="doneDrawing();">
+                    &nbsp;
+                    <!---
+                    <img name="done" src="img/done.gif" alt="Close editor window and return to main query page. You may also close the window by other means." onclick="closeSubwindows(); window.close();">
+                    -->
+                </td>
+            </tr>
+            <tr>
+                <td id="hydrogen" colspan=2 style="background: url(img/all.gif) no-repeat;" onclick="modifyHydrogen();"><img src="img/blankicon.gif"></td>
+                <td colspan=6 class="lefttd">
+                    <select name=hmode>
+                        <option value=add>Add
+                        <option value=addx>Add Special
+                        <option value=asis selected>Keep AsIs
+                        <option value=stripx>Strip Non-Special
+                        <option value=strip>Strip All
+                    </select>
+                </td>
+                <td colspan=3 align=right class="blanktd">
+                    <a href="https://pubchem.ncbi.nlm.nih.gov/sketch/sketchhelp.html" target="_blank"><font face=arial color=black><b>Help</b></font></a>
+                </td>
+            </tr>
+            <tr>
+                <td id="import" colspan=2 style="background: url(img/all.gif) no-repeat;" onclick="importStructure();"><img src="img/blankicon.gif"></td>
+                <td colspan=9 class="lefttd"><input name="upload" type=file size=18></td>
+            </tr>
+        </table>
+    </form>
+</body>
+</html>
