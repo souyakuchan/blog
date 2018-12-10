@@ -15,9 +15,9 @@ title: 創薬スクリーニングアッセイの費用感
 [創薬レイドバトル](https://gist.github.com/souyakuchan/7f9add656d9d6b91f02f6939b88aa2c8) 実施中！  
 具体的な見積価格は明かせないが、まずは今回の PD-1/PD-L1 相互作用阻害剤のスクリーニング系設計でどの程度の費用がかかるか、試薬の実費レベルで見てみよう。  
 ### アッセイ試薬
-今回は [市販のキット](https://www.cisbio.com/japan/drug-discovery/human-pd1pd-l1-biochemical-interaction-assay) を用いてスクリーニングアッセイを実施する。  
+今回は HTRF 方式の [市販のキット](https://www.cisbio.com/japan/drug-discovery/human-pd1pd-l1-biochemical-interaction-assay) を用いてスクリーニングアッセイを実施する。  
 96 穴もしくは 384 穴プレートでの１ウェル 20 μL でのアッセイで、500 サンプルぶんのキットを購入する。数十万円相当。  
-類似品 ([AlphaLISA](http://www.perkinelmer.com/product/alphalisa-pd-1-pd-l1-kit-500pts-al356c)) 
+類似品 ([AlphaLISA](http://www.perkinelmer.com/product/alphalisa-pd-1-pd-l1-kit-500pts-al356c) / [ELISA](https://www.acrobiosystems.com/P11-PD-1-%5BBiotinylated%5D-%3A-PD-L1-Inhibitor-Screening-ELISA-Assay-Pair.html) / [Cell-based](http://bpsbioscience.com/pd1-pdl1-assay-kit-79377)) の価格も見てみると具体的な費用感が分かるだろう。スケールメリットがあることも見て取れる。  
 
 
 
