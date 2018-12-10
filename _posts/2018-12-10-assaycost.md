@@ -5,8 +5,15 @@ title: 創薬スクリーニングアッセイの費用感
 
 [創薬アドベントカレンダー 2018](https://adventar.org/calendars/3041) 10 日目記事  
 [#souyakuAC2018](https://twitter.com/search?q=%23souyakuAC2018)  
-  
-# 創薬レイドバトル 2018
-[創薬レイドバトル](https://gist.github.com/souyakuchan/7f9add656d9d6b91f02f6939b88aa2c8)実施中！  
+![assay_and_screening](https://user-images.githubusercontent.com/33997698/49732006-7b753780-fcc0-11e8-801b-1206ee214d1a.png)
+
+## 例: 創薬レイドバトル 2018
+[創薬レイドバトル](https://gist.github.com/souyakuchan/7f9add656d9d6b91f02f6939b88aa2c8) 実施中！  
 具体的な見積価格は明かせないが、まずは今回の PD-1/PD-L1 相互作用阻害剤のスクリーニング系設計でどの程度の費用がかかるか、試薬の実費レベルで見てみよう。  
-  
+### アッセイ試薬
+今回は [市販のキット](https://www.cisbio.com/japan/drug-discovery/human-pd1pd-l1-biochemical-interaction-assay) を用いてスクリーニングアッセイを実施する。  
+96 穴もしくは 384 穴プレートでの１ウェル 20 μL でのアッセイで、500 サンプルぶんのキットを購入する。数十万円相当。  
+類似品 ([AlphaLISA](http://www.perkinelmer.com/product/alphalisa-pd-1-pd-l1-kit-500pts-al356c)) 
+
+
+
