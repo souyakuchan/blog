@@ -5,7 +5,11 @@ title: 創薬スクリーニングアッセイの費用感
 
 [創薬アドベントカレンダー 2018](https://adventar.org/calendars/3041) 10 日目記事  
 [#souyakuAC2018](https://twitter.com/search?q=%23souyakuAC2018)  
-![assay_and_screening](https://user-images.githubusercontent.com/33997698/49732006-7b753780-fcc0-11e8-801b-1206ee214d1a.png)
+  
+![assay_and_screening](https://user-images.githubusercontent.com/33997698/49732006-7b753780-fcc0-11e8-801b-1206ee214d1a.png)  
+  
+いわゆるハイスループットスクリーニング (HTS) を実施するには設備投資も必要で、協業しない限りはアカデミアの中小ラボが自力で実施するのは難しい。一方、数百～数千化合物程度であれば、労力と最低限の機器（プレートリーダーなど）があれば一般的な研究費の範囲内で実施できる。バーチャルスクリーニングによってある程度ヒットを濃縮できていれば、（標的の難易度にもよるが）ヒット化合物の取得までは可能であろう。  
+本記事では、具体例を交えて創薬スクリーニングアッセイの費用感を概観してみる。
 
 ## 例: 創薬レイドバトル 2018
 [創薬レイドバトル](https://gist.github.com/souyakuchan/7f9add656d9d6b91f02f6939b88aa2c8) 実施中！  
