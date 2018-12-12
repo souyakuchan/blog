@@ -25,4 +25,13 @@ PDB ID による立体構造描画
 <blockquote class="twitter-tweet" data-lang="ja"><p lang="und" dir="ltr">&quot;c1ccccc1&quot; <a href="https://twitter.com/hashtag/souyakuchan_magic?src=hash&amp;ref_src=twsrc%5Etfw">#souyakuchan_magic</a> <a href="https://t.co/f1xHZY9pAU">pic.twitter.com/f1xHZY9pAU</a></p>&mdash; 創薬ちゃん【レイドバトル開催中】 (@souyakuchan) <a href="https://twitter.com/souyakuchan/status/1072856947441848320?ref_src=twsrc%5Etfw">2018年12月12日</a></blockquote>
 <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>  
   
+このように、@souyakuchan にメンションする形で、呪文（SMILES 記法）に続けて #smiles と術式（ハッシュタグ）を指定することで二次元の構造式を詠唱（描画）したツイートを返す。  
+
+
+
+# IUPAC 名による構造式描画
+
+<blockquote class="twitter-tweet" data-lang="ja"><p lang="und" dir="ltr">&quot;c1ccccc1&quot; <a href="https://twitter.com/hashtag/souyakuchan_magic?src=hash&amp;ref_src=twsrc%5Etfw">#souyakuchan_magic</a> <a href="https://t.co/482x2Nhu0G">pic.twitter.com/482x2Nhu0G</a></p>&mdash; 創薬ちゃん【レイドバトル開催中】 (@souyakuchan) <a href="https://twitter.com/souyakuchan/status/1072857499785723904?ref_src=twsrc%5Etfw">2018年12月12日</a></blockquote>
+<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>  
+  
 
