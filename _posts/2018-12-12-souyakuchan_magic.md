@@ -29,9 +29,18 @@ PDB ID による立体構造描画
 
 
 
-# IUPAC 名による構造式描画
+### IUPAC 名による構造式描画
 
 <blockquote class="twitter-tweet" data-lang="ja"><p lang="und" dir="ltr">&quot;c1ccccc1&quot; <a href="https://twitter.com/hashtag/souyakuchan_magic?src=hash&amp;ref_src=twsrc%5Etfw">#souyakuchan_magic</a> <a href="https://t.co/482x2Nhu0G">pic.twitter.com/482x2Nhu0G</a></p>&mdash; 創薬ちゃん【レイドバトル開催中】 (@souyakuchan) <a href="https://twitter.com/souyakuchan/status/1072857499785723904?ref_src=twsrc%5Etfw">2018年12月12日</a></blockquote>
 <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>  
   
+このように、@souyakuchan にメンションする形で、呪文（IUPAC 名）に続けて #iupac と術式（ハッシュタグ）を指定することで二次元の構造式を詠唱（描画）したツイートを返す。  
+
+
+### PDB ID による立体構造描画
+
+<blockquote class="twitter-tweet" data-lang="ja"><p lang="und" dir="ltr"><a href="https://t.co/2pwj88px7Z">https://t.co/2pwj88px7Z</a> <a href="https://twitter.com/hashtag/1emb?src=hash&amp;ref_src=twsrc%5Etfw">#1emb</a> <a href="https://twitter.com/hashtag/souyakuchan_magic?src=hash&amp;ref_src=twsrc%5Etfw">#souyakuchan_magic</a></p>&mdash; 創薬ちゃん【レイドバトル開催中】 (@souyakuchan) <a href="https://twitter.com/souyakuchan/status/1072858311526137856?ref_src=twsrc%5Etfw">2018年12月12日</a></blockquote>
+<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>  
+  
+このように、@souyakuchan にメンションする形で、呪文（PDB ID）に続けて #PDB と術式（ハッシュタグ）を指定することで該当分子の立体構造を詠唱（描画）するツイートを返す。  
 
