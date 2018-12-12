@@ -28,10 +28,20 @@ title: souyakuchan 詠唱(bot)機能まとめ
 このように、@souyakuchan にメンションする形で、呪文（SMILES 記法）に続けて #smiles と術式（ハッシュタグ）を指定することで二次元の構造式を詠唱（描画）したツイートを返す。  
 
 SMILES 記法の書き方については、良いまとめ記事があったのでリンクを貼っておこう。  
-[SMILES記法は化学構造の線形表記法 -化学の新しいカタチ- 有機合成化学者のための計算化学・ケモインフォマティクス入門](https://future-chem.com/smiles-smarts/)  
+- [SMILES記法は化学構造の線形表記法 -化学の新しいカタチ- 有機合成化学者のための計算化学・ケモインフォマティクス入門](https://future-chem.com/smiles-smarts/)  
 
-元々、この詠唱機能は皆さんの自由な発想で任意の分子構造をツイートしてもらうために実装したものだが、SMILES 記法をマスターしていれば自力で書き下すのもできなくはないと思われるが、いきなり書き下すのはなかなか難しいと思われる。既知の分子であればデータベースなどから SMILES をそのまま取ってきてコピペすれば使うことができるだろう。  
-一方、通常は、構造式エディタを使って描くのがやはり簡便だろう。
+元々、この詠唱機能は皆さんの自由な発想で任意の分子構造をツイートしてもらうために実装したものだが、SMILES 記法をマスターしていれば自力で書き下すのもできなくはないと思われるが、いきなり書き下すのはなかなか難しいと思われる。  
+既知の分子であればデータベースなどから SMILES をそのまま取ってきてコピペすればよいが、一方、任意の構造式を描こうと思うと、通常は構造式エディタを使って描くのがやはり簡便だろう。  
+
+<blockquote class="twitter-tweet" data-lang="ja"><p lang="ja" dir="ltr">化合物エディタ TL 埋め込みテスト。<br>動くかな？ PC ブラウザならページ遷移無しに TL 内で展開できるはずだ。<a href="https://t.co/bhvPprAyOH">https://t.co/bhvPprAyOH</a></p>&mdash; 創薬ちゃん【レイドバトル開催中】 (@souyakuchan) <a href="https://twitter.com/souyakuchan/status/990744010053464064?ref_src=twsrc%5Etfw">2018年4月30日</a></blockquote>
+<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>  
+  
+これは JavaScript ベースの古典的な構造式エディタを流用したものだ。([JSME](http://peter-ertl.com/jsme/))  
+  
+また、PubChem などにも [構造式エディタ](https://pubchem.ncbi.nlm.nih.gov/search/#draw=true) は組み込まれており、構造式を描いたら SMILES を吐き出させることもできるので、容易に活用できるだろう。  
+  
+PyMOL 使いであれば、PyMOL で構造式を描くこともできる。  
+
 
 ### IUPAC 名による構造式描画
 
