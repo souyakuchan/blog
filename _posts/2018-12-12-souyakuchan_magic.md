@@ -11,13 +11,13 @@ title: souyakuchan 詠唱(bot)機能まとめ
   
 基本的な用法は次の３つだ。  
   
-SMILES 記法による構造式描画  
+- SMILES 記法による構造式描画  
 > @souyakuchan c1ccccc1 #smiles
   
-IUPAC 名による構造式描画
+- IUPAC 名による構造式描画
 > @souyakuchan benzene #iupac
   
-PDB ID による立体構造描画
+- PDB ID による立体構造描画
 > @souyakuchan 1emb #pdb
 
 ### SMILES 記法による構造式描画
